@@ -1,6 +1,7 @@
 #!/bin/bash
 # get-git.sh -- by funixz -- https://github.com/funixz
 # Retrieves latest version of git and installs from source if you allow it.
+# - requires these installed: libcurl4-openssl-dev libexpat1-dev gettext libz-dev libssl-dev build-essential autoconf
 # - built on Debian
 # - run with sudo/root
 # - make sure there's no prior git files in /tmp before running.
