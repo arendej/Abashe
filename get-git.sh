@@ -2,7 +2,7 @@
 # get-git.sh -- by funixz -- https://github.com/funixz
 # Retrieves latest version of git and installs from source if you allow it.
 # - Debian requires these installed: libcurl4-openssl-dev libexpat1-dev gettext libz-dev libssl-dev build-essential autoconf
-# - RHEL/ Centos requires these installed: gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel
+# - RHEL/ Centos requires these installed: gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel gcc autoconf
 # - built on Debian
 # - run with sudo/root
 # - make sure there's no prior git files in /tmp before running.
@@ -51,12 +51,15 @@ echo ""; echo "Done."; echo "Current installed Git version is now $cgitver ."; e
 }
 
 upgradegitCE() {
+echo ""; echo "Installing dependencies.."
+yum groupinstall -yq "Development Tools"
+yum install -yq gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel gcc autoconf
 echo ""; echo "Upgrading Git..."
 echo "Going from -- $cgitver -- to -- $latest --. "; echo ""
 newlink="https://github.com/git/git/archive/$latest.tar.gz"
 #-----
 echo "pulling from $newlink"
-cd /tmp && wget -q --show-progress $newlink
+cd /tmp && wget -q --progress=bar:force $newlink
 s2;
 cd /tmp && tar -xzf $(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 2 | head -n 1 | cut -d \/ -f 5)
 s2
@@ -75,9 +78,9 @@ echo ""; echo "Done."; echo "Current installed Git version is now $cgitver ."; e
 #main
 
 # discover Debian or CentOS
-if [ $(cat /etc/debian_version |grep "8.") ]; then
+if [[ $(cat /etc/debian-version |grep "8.") ]]; then
   OS="Deb"
-elif [ $(cat /etc/redhat_release |grep " 7.") ]; then
+elif [[ $(cat /etc/redhat-release |grep " 7.") ]]; then
   OS="RCE"
 fi
 
