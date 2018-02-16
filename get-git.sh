@@ -3,9 +3,9 @@
 # Retrieves latest version of git and installs from source if you allow it.
 # - Debian requires these installed: libcurl4-openssl-dev libexpat1-dev gettext libz-dev libssl-dev build-essential autoconf
 # - RHEL/ Centos requires these installed: gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel gcc autoconf
-# - built on Debian
+# - built on Debian 8 & CentOS 7
 # - run with sudo/root
-# - make sure there's no prior git files in /tmp before running.
+# - try to make sure there's no prior git files in /tmp before running.
 ##################################################################################
 
 #global variables
