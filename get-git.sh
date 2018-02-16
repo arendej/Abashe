@@ -19,7 +19,7 @@ OS=""
 #functions
 
 s2() {
-sleep 2s
+sleep 1s
 }
 
 #uninstallgit() {
