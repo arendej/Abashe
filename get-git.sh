@@ -53,7 +53,7 @@ echo ""; echo "Done."; echo "Current installed Git version is now $cgitver ."; e
 upgradegitCE() {
 echo ""; echo "Installing dependencies.."
 yum groupinstall -yq "Development Tools"
-yum install -yq gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel gcc autoconf
+yum install -yq wget gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel gcc autoconf
 echo ""; echo "Upgrading Git..."
 echo "Going from -- $cgitver -- to -- $latest --. "; echo ""
 newlink="https://github.com/git/git/archive/$latest.tar.gz"
