@@ -30,7 +30,7 @@ sleep 1s
 
 gitreport() {
 	cgitver="v$(/usr/local/bin/git --version|cut -d ' ' -f 3)"
-	wgit="/usr/local$(which git)"
+	wgit="$(which git)"
 	echo -e "\nCurrent installed Git version is now $cgitver, found at $wgit .\n"
 }
 
