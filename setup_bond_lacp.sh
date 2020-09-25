@@ -25,7 +25,7 @@ ip link set dev ${ETH1} down
 ip link set dev ${ETH2} down
 
 # now create the bond interface
-nmcli connection add type bond con-name ${BOND} ifname ${BOND} bond.options \"mode=${TYPE} xmit_hash_policy=2\"
+nmcli connection add type bond con-name ${BOND} ifname ${BOND} bond.options mode=${TYPE},xmit_hash_policy=2
 
 # add the ethernet ports
 nmcli connection add type ethernet slave-type bond con-name ${BOND}-port1 ifname ${ETH1} master ${BOND}
