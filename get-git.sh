@@ -90,6 +90,10 @@ if [[ $(cat /etc/debian-version |grep "8.") ]]; then
   OS="Deb"
 elif [[ $(cat /etc/redhat-release |grep " 7.") ]]; then
   OS="RCE"
+elif [[ $(cat /etc/redhat-release |grep " 8.") ]]; then
+  OS="RCE"
+elif [[ $(cat /etc/redhat-release |grep Fedora |awk '{print$3}' > 21) ]]; then
+  OS="RCE"
 fi
 
 # help parameter handling
