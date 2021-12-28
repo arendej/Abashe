@@ -13,9 +13,9 @@
 cgitver="v$(/usr/local/bin/git --version|cut -d ' ' -f 3)"
 wgit=$(which git)
 #cgitver="v2.16.0-rc1" #for testing
-#latest=$(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 2 | head -n 1 | cut -d \/ -f 5 |sed 's/.tar.gz//')
-latest=$(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 5 |sed 's/.tar.gz//')
-wdir=$(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 5 |sed 's/v//' |sed 's/.tar.gz//')
+#old# latest=$(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 5 |sed 's/.tar.gz//')
+latest=$(curl https://github.com/git/git/tags -s| grep [0-9].tar.gz| cut -d \" -f 4|head -n 1 | cut -d \/ -f 7 | sed 's/.tar.gz//')
+wdir=$(curl https://github.com/git/git/tags -s| grep [0-9].tar.gz| cut -d \" -f 4|head -n 1 | cut -d \/ -f 7  |sed 's/v//' |sed 's/.tar.gz//')
 OS=""
 
 #functions
@@ -37,12 +37,12 @@ gitreport() {
 upgradegitDeb() {
 echo -e "\nUpgrading Git..."
 echo "Going from -- $cgitver -- to -- $latest --. \n"
-newlink="https://github.com/git/git/archive/$latest.tar.gz"
+newlink="https://github.com/git/git/archive/refs/tags/$latest.tar.gz"
 #-----
 echo "pulling from $newlink"
-cd /tmp && wget -q --show-progress $newlink
-s2;
-cd /tmp && tar -xzf $(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 5)
+cd /tmp && wget --show-progress $newlink
+s2
+cd /tmp && tar -xzf $(curl https://github.com/git/git/tags -s| grep [0-9].tar.gz | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 7)
 s2
 cd /tmp/git-$wdir && make --silent configure >> /tmp/git-from-source.log 2>&1
 s2
@@ -64,12 +64,12 @@ yum -q groupinstall -y "Development Tools"
 yum -q install -y wget gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel gcc autoconf
 echo -e "\nUpgrading Git..."
 echo -e "Going from -- $cgitver -- to -- $latest --. \n"
-newlink="https://github.com/git/git/archive/$latest.tar.gz"
+newlink="https://github.com/git/git/archive/refs/tags/$latest.tar.gz"
 #-----
 echo "pulling from $newlink"
-cd /tmp && wget -q --progress=bar:force $newlink
+cd /tmp && wget --progress=bar:force $newlink
 s2;
-cd /tmp && tar -xzf $(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 5)
+cd /tmp && tar -xzf $(curl https://github.com/git/git/tags -s| grep [0-9].tar.gz | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 7)
 s2
 cd /tmp/git-$wdir && make --silent configure >> /tmp/git-from-source.log 2>&1
 s2
@@ -92,7 +92,7 @@ elif [[ $(cat /etc/redhat-release |grep " 7.") ]]; then
   OS="RCE"
 elif [[ $(cat /etc/redhat-release |grep " 8.") ]]; then
   OS="RCE"
-elif [[ $(cat /etc/redhat-release |grep Fedora |awk '{print$3}' > 21) ]]; then
+elif (( $(cat /etc/redhat-release |grep Fedora |awk '{print$3}') > 21 )); then
   OS="RCE"
 fi
 
