@@ -7,10 +7,11 @@
 # - run with sudo/root
 # - try to make sure there's no prior git files in /tmp before running.
 ##################################################################################
-
+set -x
 #global variables
 
 cgitver="v$(/usr/local/bin/git --version|cut -d ' ' -f 3)"
+loccurgitver="v$($(which git) --version|cut -d ' ' -f 3)"
 wgit=$(which git)
 #cgitver="v2.16.0-rc1" #for testing
 #old# latest=$(curl https://github.com/git/git/releases -s | grep archive | grep '.tar.gz' | cut -d \" -f 4 | head -n 1 | cut -d \/ -f 5 |sed 's/.tar.gz//')
@@ -29,14 +30,17 @@ sleep 1s
 #;}
 
 gitreport() {
+	loccurgitver="v$($(which git) --version|cut -d ' ' -f 3)"
 	cgitver="v$(/usr/local/bin/git --version|cut -d ' ' -f 3)"
 	wgit="$(which git)"
-	echo -e "\nCurrent installed Git version is now $cgitver, found at $wgit .\n"
+	echo -e "\nNon-stock Git version is $cgitver, found at /usr/local/bin/git ."
+	echo -e "Stock Git version is $loccurgitver, found at $wgit ."
+	echo -e "\nYou may opt to use a specific one and remove the other.\n"
 }
 
 upgradegitDeb() {
-echo -e "\nUpgrading Git..."
-echo "Going from -- $cgitver -- to -- $latest --. \n"
+echo -e "\nUpgrading Git on Debian..."
+echo "Going from -- $cgitver or $loccurgitver -- to -- $latest --. \n"
 newlink="https://github.com/git/git/archive/refs/tags/$latest.tar.gz"
 #-----
 echo "pulling from $newlink"
@@ -53,17 +57,15 @@ s2
 cd /tmp/git-$wdir && make --silent prefix=/usr/local install > /tmp/git-from-source.log 2>&1
 s2
 #-----
-
 gitreport;
-
 }
 
 upgradegitCE() {
 echo -e "\nInstalling dependencies.."
 yum -q groupinstall -y "Development Tools"
 yum -q install -y wget gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel gcc autoconf
-echo -e "\nUpgrading Git..."
-echo -e "Going from -- $cgitver -- to -- $latest --. \n"
+echo -e "\nUpgrading Git on RHEL/Fedora ..."
+echo -e "Going from -- $cgitver or $loccurgitver -- to -- $latest --. \n"
 newlink="https://github.com/git/git/archive/refs/tags/$latest.tar.gz"
 #-----
 echo "pulling from $newlink"
@@ -78,9 +80,7 @@ s2
 cd /tmp/git-$wdir && make --silent install > /tmp/git-from-source.log 2>&1
 s2
 #-----
-
 gitreport;
-
 }
 
 #main
@@ -96,43 +96,54 @@ elif (( $(cat /etc/redhat-release |grep Fedora |awk '{print$3}') > 21 )); then
   OS="RCE"
 fi
 
-# help parameter handling
+# help parameter handling - if asking for help or , then show it.
 if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ -n "$1" ]; then
-  echo "--------------------------------------------------------------------------------"
-  echo "get-git.sh -- by funixz -- https://github.com/funixz"
-  echo "Retrieves latest version of git and installs from source if you allow it."
-  echo "- run with sudo/root"
-  echo "- make sure there's no prior git related files/folders in /tmp before running."
-  echo "- currently accepts no CLI parameters, except '-h' or '--help'"
-  echo -e "--------------------------------------------------------------------------------\n"
+   echo -e "--------------------------------------------------------------------------------"
+   echo " get-git.sh -- by arendej -- https://github.com/arendej"
+   echo -e " Retrieves latest version of git from GitHub  and installs from source if you\nallow it."
+   echo "  - run with sudo/root"
+   echo "  - make sure there's no prior git related files/folders in /tmp before running."
+   echo -e "  - currently accepts '-h' or '--help' for help and '-y' to upgrade\nwithout prompt"
+   echo -e "--------------------------------------------------------------------------------\n"
 else
 
- echo "Current installed Git version is $cgitver ."
- echo -e "Latest Git on github.com is $latest \n"
+   echo "Current non-stock Git version is $cgitver (if installed)."
+   echo "Current stock Git version is $loccurgitver (if installed)."
+   echo -e "Latest Git on github.com is $latest \n"
 
- if [ "$cgitver" == "$latest" ]; then
-    echo "Current Git matches latest available. Exiting."
-    exit 0
- elif [ "$cgitver" != "$latest" ]; then
-    echo "Newer git available. Upgrade? [y/n]:"
-    read upg
-    if [ "$upg" == "y" ] || [ "$upg" == "Y" ]; then
-       if [ "$OS" == "RCE" ]; then
-         upgradegitCE;
-       elif [ "$OS" == "Deb" ]; then
-         upgradegitDeb;
-       else
-         echo "Uncertain OS. Expecting RHEL 7/ CentOS 7 or Debian 8. Exiting."
-         exit 1
-       fi
-    else
-       echo "No upgrade to take place. Exiting."
-       exit 0
-    fi
- else
-    echo "Something other than 'equal or not-equal' version comparison went wrong. Exiting."
-    exit 1
- fi
+   if [[ "$cgitver" == "$latest" && "$1" != "-y" ]]; then
+      echo "Current Git matches latest available. Exiting."
+      exit 0
+   elif [[ "$cgitver" != "$latest" && "$1" != "-y" ]]; then
+      echo "Newer git available. Upgrade? [y/n]:"
+      read upg
+      if [ "$upg" == "y" ] || [ "$upg" == "Y" ]; then
+         if [ "$OS" == "RCE" ]; then
+           upgradegitCE;
+         elif [ "$OS" == "Deb" ]; then
+           upgradegitDeb;
+         else
+           echo "Uncertain OS. Expecting RHEL 7/ CentOS 7 or Debian 8. Exiting."
+           exit 1
+         fi
+      else
+         echo "No upgrade to take place. Exiting."
+         exit 0
+      fi
+   elif [[ "$cgitver" != "$latest" && "$1" == "-y" ]]; then
+      echo "Newer git available. Upgrading because you provided '-y' to proceed"
+         if [ "$OS" == "RCE" ]; then
+           upgradegitCE;
+         elif [ "$OS" == "Deb" ]; then
+           upgradegitDeb;
+         else
+		 echo -e "Uncertain OS. Expecting RHEL 7/8 (or derived) or Fedora or Debian 8. Exiting."
+           exit 1
+         fi
+   else
+      echo "Something other than 'equal or not-equal' version comparison went wrong. Exiting."
+      exit 1
+   fi
 
 fi
 
