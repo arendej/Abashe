@@ -7,7 +7,7 @@
 # - run with sudo/root
 # - try to make sure there's no prior git files in /tmp before running.
 ##################################################################################
-set -x
+#set -x
 #global variables
 
 #loccurgitver="v$(/usr/local/bin/git --version|cut -d ' ' -f 3)"
