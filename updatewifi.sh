@@ -7,7 +7,7 @@
 # change the user var to your own.
 # depends on the repo having been cloned already.
 
-MYUSER=adj
+MYUSER=username
 
 CAN_I_RUN_SUDO=$(sudo -n uptime 2>&1|grep "load"|wc -l)
 if [ ${CAN_I_RUN_SUDO} -gt 0 ]
